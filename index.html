@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+  <meta name="renderer" content="webkit" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0" />
+  <link rel="icon" href="logo.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="logo.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="main.css" type="text/css" />
+  <title>Arcaea本地查分器</title>
+</head>
+
+<body>
+  <noscript class="warning">
+    <p>您的浏览器未启用或不支持JavaScript，无法使用本网站。</p>
+    <p>Your browser isn't enabled or doesn't support JavaScript. Please check and try again.</p>
+  </noscript>
+  <div class="warning hidden">
+    <p>您的浏览器内核版本过低，无法支持网站功能的正常运行。请升级/更换浏览器或是等待本站的兼容性更新。</p>
+  </div>
+  <main>
+    <div class="row">
+      <h2>Arcaea本地查分器</h2>
+      <h4 id="version">--</h4>
+    </div>
+    <div class="row">
+      <span class="button" id="import_data">导入数据</span>
+      <span class="button" id="about_website">关于本站</span>
+    </div>
+    <div class="row hidden" id="search_container">
+      <div id="sentinel"></div>
+      <div id="search_box">
+        <input type="text" id="search" placeholder="搜索……" required />
+        <div id="result_box"></div>
+      </div>
+      <div class="hidden" id="search_mask"></div>
+    </div>
+    <div class="row hidden" id="player_info">
+      <span>Best 30均值：<span id="b30_average"></span></span>
+      <span>理论最高PTT：<span id="max_potential"></span></span>
+    </div>
+    <div id="record_list"></div>
+  </main>
+  <div id="loading_mask">
+    <p class="loading lg"></p>
+    <p>正在加载中……</p>
+  </div>
+  <input type="file" id="dbFile" style="display: none;" />
+  <template id="record_box_template">
+    <div class="record_box">
+      <p>#<span class="ranking">{{ ranking }}</span> - <strong class="title">{{ title }}</strong> / <small>{{ artist }}</small></p>
+      <p class="score"><span class="score_display">{{ scoreDisplay }}</span><span>{{ rank }}</span></p>
+      <p class="details"><span class="rating">{{ difficultyName }} {{ constant }} > {{ ratingDisplay }}</span><span>{{ clearTypeDisplay }}</span></p>
+      <p class="judges"><span>PURE {{ perfectCount }} (+{{ shinyPerfectCount }})</span><span>FAR {{ nearCount }}</span><span>LOST {{ missCount }}</span></p>
+    </div>
+  </template>
+  <template id="result_item_template">
+    <div class="result_item"><span>#{{ ranking }} - </span><span class="title"></span><br /><span>{{ details }}</span></div>
+  </template>
+  <template id="dialog_template">
+    <div class="dialog_container hidden">
+      <div class="dialog_mask"></div>
+      <div class="dialog_box">
+        <div class="title"></div>
+        <div class="content"></div>
+        <div class="buttons"></div>
+      </div>
+    </div>
+  </template>
+  <script>
+    try {
+      fetch;
+      null ?? true;
+      Promise?.prototype;
+      eval('async function test() {}');
+      WebAssembly;
+      IntersectionObserver;
+    } catch (err) {
+      document.querySelector('.warning.hidden').classList.remove('hidden');
+    }
+  </script>
+  <script src="lib/sql-wasm.js"></script>
+  <script src="app.js" type="module"></script>
+</body>
+
+</html>

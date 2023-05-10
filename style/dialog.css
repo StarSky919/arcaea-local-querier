@@ -1,0 +1,110 @@
+.dialog_container.hidden {
+  pointer-events: none;
+}
+
+.dialog_mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.35);
+  transition: opacity 0.25s;
+}
+
+.dialog_container.hidden .dialog_mask {
+  opacity: 0;
+}
+
+.dialog_box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: 2rem 0;
+  position: fixed;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  max-height: 65vh;
+  background: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  transition: bottom 0.25s, opacity 0.25s;
+}
+
+.dialog_box>* {
+  margin: 0.65rem 0;
+}
+
+.dialog_box .title {
+  width: 100%;
+  text-align: center;
+  font-size: 1.3em;
+}
+
+.dialog_box .content {
+  overflow-x: hidden;
+  overflow-y: scroll;
+  padding: 0 2rem;
+  width: 100%;
+  font-size: 0.95em;
+  line-height: 1.5em;
+  text-align: center;
+}
+
+.dialog_box .content::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 5px;
+}
+
+.dialog_box .content::-webkit-scrollbar {
+  width: 0.25rem;
+  border-radius: 5px;
+}
+
+.dialog_box .content::-webkit-scrollbar-thumb {
+  background: #CFCFCF;
+  background-clip: padding-box;
+  border-radius: 5px;
+}
+
+.dialog_box .content .row {
+  margin: 0.65rem 0;
+}
+
+.dialog_box .buttons {
+  display: flex;
+  justify-content: space-around;
+  padding: 0 2rem;
+  width: 100%;
+}
+
+.dialog_box .buttons .button {
+  padding: 0.8rem 0;
+  max-width: 50%;
+  font-size: 1em;
+}
+
+.dialog_box .buttons .button.full_width {
+  max-width: 100%;
+}
+
+.dialog_box .buttons .button:not(:last-of-type) {
+  margin-right: 1rem;
+}
+
+.dialog_container.hidden .dialog_box {
+  bottom: -5%;
+  opacity: 0;
+}
+
+@media all and (orientation: landscape) {
+  .dialog_box {
+    margin: 0 auto;
+    bottom: 1rem;
+    max-width: calc(150vmin - 2rem);
+    max-height: calc(100vh - 2rem);
+  }
+}

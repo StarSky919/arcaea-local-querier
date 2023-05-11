@@ -25,7 +25,7 @@ window.log = console.log;
 
 $('version').innerText = `v${VERSION.join('.')}`;
 window.addEventListener('error', err => {
-  Dialog.error(`发生了错误！\n请将以下错误信息截图并及时反馈。\n\n错误信息：\n${err.message}`)
+  Dialog.error(`发生了错误！\n请将以下错误信息截图并及时反馈。\n\n错误信息：\n${err.message}\n(${err.filename}:${err.lineno}:${err.colno})`)
 });
 
 async function main(SQL) {
@@ -123,7 +123,7 @@ async function main(SQL) {
       const rank = getRank(score);
       const clearTypeDisplay = getClearType(clearType);
       const difficultyName = getDifficultyName(songDifficulty);
-      const { constant } = consts[songId][songDifficulty];
+      const { constant } = isNullish(consts[songId]) ? { constant: 0 } : consts[songId][songDifficulty];
       const rating = getRating(constant, score);
       const ratingDisplay = rounding(rating, 4);
       Object.assign(scores[i], { scoreDisplay, rank, clearTypeDisplay, difficultyName, constant, rating, ratingDisplay });
@@ -136,7 +136,9 @@ async function main(SQL) {
     clearChildNodes(recordList);
     const recordFrag = document.createDocumentFragment();
     for (const record of records) {
-      const { id, title_localized, artist, difficulties } = songs.find(({ id }) => id === record.songId);
+      const song = songs.find(({ id }) => id === record.songId);
+      if (isNullish(song)) continue;
+      const { id, title_localized, artist, difficulties } = song;
       const difficulty = difficulties[record.songDifficulty];
       const data = Object.assign({}, record, {
         title: difficulty.title_localized ? getTitle(difficulty.title_localized) : getTitle(title_localized),
@@ -297,4 +299,4 @@ fetch('/lib/sql-wasm.wasm')
   .then(res => res.arrayBuffer(), err => Promise.stop(Dialog.error('您的网络似乎有点问题……\n请检查网络连接并尝试刷新网页。')))
   .then(wasmBinary => initSqlJs({ wasmBinary }))
   .then(main, err => Promise.stop(Dialog.error('sql.js组件加载失败，请尝试刷新网页。')))
-  .catch(err => Dialog.error(`发生了错误！\n请将以下错误信息截图并及时反馈。\n\n错误信息：\n${err}`));
+  .catch(err => Dialog.error(`发生了错误！\n请将以下错误信息截图并及时反馈。\n\n错误信息：\n${err.stack}`));

@@ -27,6 +27,8 @@
     </div>
     <div class="row">
       <span class="button" id="import_data">导入数据</span>
+      <span class="button" id="sort_order">排序方式</span>
+      <span class="button" id="generate_image">生成图片</span>
       <span class="button" id="about_website">关于本站</span>
     </div>
     <div class="row hidden" id="search_container">
@@ -50,7 +52,7 @@
   <input type="file" id="dbFile" style="display: none;" />
   <template id="record_box_template">
     <div class="record_box">
-      <p>#<span class="ranking">{{ ranking }}</span> - <strong class="title">{{ title }}</strong> / <small>{{ artist }}</small></p>
+      <p class="info">#<span class="ranking">{{ ranking }}</span> - <strong class="title">{{ title }}</strong> / <small>{{ artist }}</small></p>
       <p class="score"><span class="score_display">{{ scoreDisplay }}</span><span>{{ rank }}</span></p>
       <p class="details"><span class="rating">{{ difficultyName }} {{ constant }} > {{ ratingDisplay }}</span><span>{{ clearTypeDisplay }}</span></p>
       <p class="judges"><span>PURE {{ perfectCount }} (+{{ shinyPerfectCount }})</span><span>FAR {{ nearCount }}</span><span>LOST {{ missCount }}</span></p>

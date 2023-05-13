@@ -73,3 +73,5 @@ export class Datastore {
       .forEach(key => s.removeItem(key));
   }
 }
+
+export default Datastore;

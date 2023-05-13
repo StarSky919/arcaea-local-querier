@@ -2,6 +2,7 @@ import '/lib/kana-1.0.7.js';
 import { VERSION } from '/src/constants.js';
 import {
   $,
+  $$,
   Time,
   isNullish,
   isNumber,
@@ -18,14 +19,38 @@ import {
   clearChildNodes,
   loadJSON
 } from '/src/utils.js';
+import { generate } from '/src/generator.js';
+import Datastore from '/src/datastore.js';
 import Dialog from '/src/dialog.js';
 
-Promise.stop = value => new Promise(() => { Promise.resolve(value) });
+try {
+  localStorage.setItem('test', true);
+  localStorage.removeItem('test');
+} catch (err) {
+  Dialog.show('localStorage API发生错误！\n如果您打开了浏览器的无痕（隐私）模式，\n请将它关闭并刷新页面。', '错误');
+}
+
 window.log = console.log;
+window.alqSettings = new Datastore('alqs:');
+if (!alqSettings.has('sort_order')) alqSettings.set('sort_order', 1);
 
 $('version').innerText = `v${VERSION.join('.')}`;
 window.addEventListener('error', err => {
   Dialog.error(`发生了错误！\n请将以下错误信息截图并及时反馈。\n\n错误信息：\n${err.message}\n(${err.filename}:${err.lineno}:${err.colno})`)
+});
+
+let changelog;
+bindOnClick('about_website', event => {
+  new Dialog()
+    .title('关于本站')
+    .content('一个简易的Arcaea查分器，\n以获取本地存档的形式进行Best 30查询。\n配合修改版客户端使用体验最佳！\n\n开发者：StarSky919\nB站：starsky919，QQ群：486908465')
+    .button('更新日志', async close => {
+      if (!changelog) changelog = await fetch('changelog.txt').then(res => res.text());
+      close();
+      new Dialog().title('更新日志')
+        .content(changelog).show();
+      return false;
+    }).show();
 });
 
 async function main(SQL) {
@@ -115,27 +140,84 @@ async function main(SQL) {
     return ['Track Lost', 'Normal Clear', 'Full Recall', 'Pure Memory', 'Easy Clear', 'Hard Clear'][clearType]
   }
 
-  function importData(scores) {
-    if (!scores) return;
-    for (const i of range(scores.length)) {
-      const { songId, songDifficulty, clearType, score } = scores[i];
-      const scoreDisplay = formatScore(score);
-      const rank = getRank(score);
-      const clearTypeDisplay = getClearType(clearType);
-      const difficultyName = getDifficultyName(songDifficulty);
-      const { constant } = isNullish(consts[songId]) ? { constant: 0 } : consts[songId][songDifficulty];
-      const rating = getRating(constant, score);
-      const ratingDisplay = rounding(rating, 4);
-      Object.assign(scores[i], { scoreDisplay, rank, clearTypeDisplay, difficultyName, constant, rating, ratingDisplay });
+  function getSortMethod(order) {
+    order = order || alqSettings.get('sort_order')
+    return [(a, b) => b.rating - a.rating, (a, b) => b.constant - a.constant, (a, b) => Math.min(b.score, 1e7) - Math.min(a.score, 1e7)][order - 1];
+  }
+
+  const searchFn = throttle(event => {
+    const input = searchInput.value;
+    clearChildNodes(resultBox);
+    if (!input) return;
+    const results = [];
+    for (const i of range(recordList.childNodes.length)) {
+      const recordBox = recordList.childNodes[i];
+      const { songid, difficulty } = recordBox.dataset;
+      const { title_localized, difficulties } = songs.find(({ id }) => id === songid);
+      const data = { node: recordBox };
+      if (input === songid) {
+        data.priority = 999;
+      } else if (difficulties[difficulty].title_localized) {
+        if (data.matchedIndexes = isTitleMatched(input, difficulties[difficulty].title_localized)) data.priority = 99;
+      } else if (data.matchedIndexes = isTitleMatched(input, title_localized)) {
+        data.priority = 99;
+      }
+      if (data.priority) results.push(data);
     }
-    const records = scores.sort((a, b) => b.rating - a.rating);
-    records.forEach((record, index) => record.ranking = index + 1);
+    results.sort((a, b) => b.priority - a.priority);
+    resultBox.appendChild(createElement({ tag: 'div', classList: ['result_item'], text: isEmpty(results) ? '搜索无结果。' : `搜索到 ${results.length} 条记录（点击可跳转）：` }));
+    const resultFrag = document.createDocumentFragment();
+    for (const { node, matchedIndexes } of results) {
+      const [resultItem] = resultItemTemplate.content.cloneNode(true).children;
+      const item = compile(resultItem, {
+        ranking: node.$$('.ranking').innerText,
+        details: `${node.$$('.score_display').innerText} - ${node.$$('.rating').innerText}`
+      });
+      if (matchedIndexes) {
+        const { title, result, inputLength, titleLength } = matchedIndexes;
+
+        const indexes = [];
+        for (const index of result) indexes.push(index + inputLength);
+        const finalIndexes = staggeredMerge(result, 0, indexes);
+        if (finalIndexes[0] > 0) finalIndexes.unshift(0);
+        if (finalIndexes[finalIndexes.length - 1] < titleLength) finalIndexes.push(titleLength);
+
+        const splitChars = [];
+        for (const i of range(finalIndexes.length)) {
+          const idx = finalIndexes[i];
+          const idxNext = finalIndexes[i + 1];
+          if (isNullish(idxNext)) break;
+          const split = title.slice(idx, idxNext);
+          splitChars.push({ split, matched: result.includes(idx) });
+        }
+
+        const titleFrag = document.createDocumentFragment();
+        for (const { split, matched } of splitChars) {
+          titleFrag.appendChild(createElement({ tag: 'span', classList: [matched ? 'matched' : 'not_matched'], text: split }));
+        }
+        item.$$('.title').appendChild(titleFrag);
+      } else item.$$('.title').innerText = node.$$('.title').innerText;
+      item.onclick = event => window.scrollTo({
+        top: node.offsetTop + node.offsetHeight * 0.5 - window.innerHeight / 2,
+        behavior: 'smooth'
+      });
+      resultFrag.appendChild(item);
+    };
+    resultBox.appendChild(resultFrag);
+  }, Time.second * 0.2);
+
+  searchInput.addEventListener('input', searchFn);
+
+  function renderRecords() {
+    clearChildNodes(recordList);
+    if (isNullish(window.scores)) return;
+    const records = window.scores.slice();
     const b30 = records.slice(0, 30);
     const b30avg = b30.reduce((total, record) => total + record.rating, 0) / 30;
     const maxptt = (b30avg * 30 + b30.slice(0, 10).reduce((total, record) => total + record.rating, 0)) / 40;
-    clearChildNodes(recordList);
+    const sortedRecords = records.toSorted(getSortMethod());
     const recordFrag = document.createDocumentFragment();
-    for (const record of records) {
+    for (const record of sortedRecords) {
       const song = songs.find(({ id }) => id === record.songId);
       if (isNullish(song)) continue;
       const { id, title_localized, artist, difficulties } = song;
@@ -154,6 +236,26 @@ async function main(SQL) {
     $('max_potential').innerText = rounding(maxptt, 4);
     searchContainer.classList.remove('hidden');
     playerInfo.classList.remove('hidden');
+    searchInput.value = '';
+    searchFn();
+  }
+
+  function importData(scores, autoRendering = true) {
+    if (!scores) return;
+    for (const i of range(scores.length)) {
+      const { songId, songDifficulty, clearType, score } = scores[i];
+      const scoreDisplay = formatScore(score);
+      const rank = getRank(score);
+      const clearTypeDisplay = getClearType(clearType);
+      const difficultyName = getDifficultyName(songDifficulty);
+      const { constant } = isNullish(consts[songId]) ? { constant: 0 } : consts[songId][songDifficulty];
+      const rating = getRating(constant, score);
+      const ratingDisplay = rounding(rating, 4);
+      Object.assign(scores[i], { scoreDisplay, rank, clearTypeDisplay, difficultyName, constant, rating, ratingDisplay });
+    }
+    window.scores = scores.sort((a, b) => b.rating - a.rating);
+    window.scores.forEach((record, index) => record.ranking = index + 1);
+    if (autoRendering) renderRecords();
   }
 
   function parseDB(arrayBuffer) {
@@ -189,73 +291,83 @@ async function main(SQL) {
       .button('导入', () => dbFile.click()).show();
   });
 
-  bindOnClick('about_website', event => {
+  bindOnClick('sort_order', event => {
+    function setStyle(node, selected) {
+      if (selected) {
+        node.classList.add('selected');
+        node.style.background = 'var(--background-color-second)';
+      } else {
+        node.classList.remove('selected');
+        node.style.background = 'transparent';
+      }
+    }
+    const selects = createElement({ tag: 'div' });
+    for (const [id, text] of [[1, '单曲PTT'], [2, '定数'], [3, '分数']]) {
+      const item = createElement({
+        tag: 'div',
+        style: {
+          padding: '0.8rem 0',
+          'border-radius': 'var(--border-radius)',
+          transition: 'background 0.2s'
+        },
+        text
+      });
+      item.dataset.id = id;
+      item.onclick = event => {
+        for (const node of selects.$$('*')) {
+          setStyle(node, false);
+        }
+        setStyle(item, true);
+      }
+      if (alqSettings.get('sort_order') === id) setStyle(item, true);
+      selects.appendChild(item);
+    }
     new Dialog()
-      .title('关于本站')
-      .content('一个简易的Arcaea查分器，\n以获取本地存档的形式进行Best 30查询。\n配合修改版客户端使用体验最佳！\n\n开发者：StarSky919\nB站：starsky919，QQ群：486908465')
-      .show();
+      .title('排序方式')
+      .content(selects)
+      .button('确定', () => {
+        alqSettings.set('sort_order', Number(selects.$$('.selected').dataset.id));
+        renderRecords();
+      }).show();
   });
 
-  searchInput.addEventListener('input', throttle(event => {
-    const input = event.target.value;
-    clearChildNodes(resultBox);
-    if (!input) return;
-    const results = [];
-    for (const i of range(recordList.childNodes.length)) {
-      const recordBox = recordList.childNodes[i];
-      const { songid, difficulty } = recordBox.dataset;
-      const { title_localized, difficulties } = songs.find(({ id }) => id === songid);
-      const data = {
-        node: recordBox,
-        nodeBefore: recordList.childNodes[i - 2] || document.body
-      };
-      if (input === songid) {
-        data.priority = 999;
-      } else if (difficulties[difficulty].title_localized) {
-        if (data.matchedIndexes = isTitleMatched(input, difficulties[difficulty].title_localized)) data.priority = 99;
-      } else if (data.matchedIndexes = isTitleMatched(input, title_localized)) {
-        data.priority = 99;
+  bindOnClick('generate_image', event => {
+    if (isNullish(window.scores)) return Dialog.error('请先导入一个存档！', { cancellable: true });
+    const dialog = new Dialog()
+      .title('生成图片');
+    const nameInput = createElement({
+      tag: 'input',
+      attr: { type: 'text', placeholder: '输入你的名字' },
+      style: {
+        width: '100%',
+        padding: '0.65rem 1rem',
+        color: 'var(--text-color)',
+        background: 'var(--background-color-second)',
+        'border-radius': 'var(--border-radius)',
+        'font-size': '1em',
+        'text-align': 'center'
       }
-      if (data.priority) results.push(data);
-    }
-    results.sort((a, b) => b.priority - a.priority);
-    resultBox.appendChild(createElement({ tag: 'div', classList: ['result_item'], text: isEmpty(results) ? '搜索无结果。' : `搜索到 ${results.length} 条记录（点击可跳转）：` }));
-    const resultFrag = document.createDocumentFragment();
-    for (const { node, nodeBefore, matchedIndexes } of results) {
-      const [resultItem] = resultItemTemplate.content.cloneNode(true).children;
-      const item = compile(resultItem, {
-        ranking: node.$('.ranking').innerText,
-        details: `${node.$('.score_display').innerText} - ${node.$('.rating').innerText}`
-      });
-      if (matchedIndexes) {
-        const { title, result, inputLength, titleLength } = matchedIndexes;
-
-        const indexes = [];
-        for (const index of result) indexes.push(index + inputLength);
-        const finalIndexes = staggeredMerge(result, 0, indexes);
-        if (finalIndexes[0] > 0) finalIndexes.unshift(0);
-        if (finalIndexes[finalIndexes.length - 1] < titleLength) finalIndexes.push(titleLength);
-
-        const splitChars = [];
-        for (const i of range(finalIndexes.length)) {
-          const idx = finalIndexes[i];
-          const idxNext = finalIndexes[i + 1];
-          if (isNullish(idxNext)) break;
-          const split = title.slice(idx, idxNext);
-          splitChars.push({ split, matched: result.includes(idx) });
-        }
-
-        const titleFrag = document.createDocumentFragment();
-        for (const { split, matched } of splitChars) {
-          titleFrag.appendChild(createElement({ tag: 'span', classList: [matched ? 'matched' : 'not_matched'], text: split }));
-        }
-        item.$('.title').appendChild(titleFrag);
-      } else item.$('.title').innerText = node.$('.title').innerText;
-      item.onclick = event => nodeBefore.scrollIntoView({ behavior: "smooth" });
-      resultFrag.appendChild(item);
-    };
-    resultBox.appendChild(resultFrag);
-  }, Time.second * 0.2));
+    });
+    dialog.content(nameInput)
+      .button('确定', async close => {
+        await close();
+        const name = nameInput.value.trim();
+        if (isEmpty(name)) alqSettings.remove('nickname');
+        else alqSettings.set('nickname', name);
+        await generate(name || void 0, songs, window.scores)
+          .then(dataURL => {
+            new Dialog({ cancellable: false })
+              .title('生成图片')
+              .content('成功！点击“下载”按钮即可保存。')
+              .button('下载', () => createElement({ tag: 'a', attr: { download: 'image.png', href: dataURL } }).click()).show();
+          })
+          .catch(err => {
+            Dialog.error(`图片生成失败！\n请将以下错误信息截图并及时反馈。\n\n错误信息：\n${err.stack}`);
+          });
+      }).show();
+    if (alqSettings.has('nickname')) nameInput.value = alqSettings.get('nickname');
+    if (isEmpty(nameInput.value)) sleep(Time.second * 0.5).then(() => nameInput.focus());
+  });
 
   bindOnClick(recordList, event => {
     const recordBox = event.target;

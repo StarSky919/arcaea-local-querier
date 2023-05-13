@@ -1,5 +1,34 @@
+Array.prototype.toSorted = Array.prototype.toSorted || function(compareFn) {
+  const arr = this.slice();
+  return arr.sort(compareFn);
+}
+Array.prototype.toReversed = Array.prototype.toReversed || function() {
+  const arr = this.slice();
+  return arr.reverse();
+}
+Array.prototype.toSpliced = Array.prototype.toSpliced || function(start, deleteCount, ...items) {
+  const arr = this.slice();
+  return arr.splice(start, deleteCount, ...items);
+}
+Array.prototype.with = Array.prototype.with || function(index, value) {
+  const arr = this.slice();
+  arr[index] = value;
+  return arr;
+}
+
+
+Promise.stop = value => new Promise(() => { Promise.resolve(value) });
+
 export const $ = id => document.getElementById(id);
-Node.prototype.$ = function(selector) {
+export function $$(selector) {
+  try {
+    const nodes = document.querySelectorAll(selector);
+    return nodes.length > 1 ? nodes : nodes[0];
+  } catch (e) {
+    return null;
+  }
+}
+Node.prototype.$$ = function(selector) {
   try {
     const nodes = this.querySelectorAll(selector);
     return nodes.length > 1 ? nodes : nodes[0];
@@ -50,6 +79,40 @@ export const Time = {
     return ms + 'ms';
   }
 }
+
+export const Random = {
+  integer(min, max) {
+    return function() {
+      return Math.floor(Math.random() * (max - min + 1) + min)
+    }
+  },
+  uuid() {
+    const result = [];
+    const hexDigits = '0123456789abcdef';
+    for (let i = 0; i < 36; i++) {
+      result[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+    }
+    result[14] = 4;
+    result[19] = hexDigits.substr((result[19] & 0x3) | 0x8, 1);
+    result[8] = result[13] = result[18] = result[23] = '-';
+    return result.join('');
+  },
+  shuffle(arr) {
+    const temp = arr.slice();
+    const result = [];
+    for (let i = temp.length; i > 0; --i) {
+      result.push(temp.splice(Random.integer(0, i - 1)(), 1)[0]);
+    }
+    return result;
+  },
+  pick(arr, count = 1) {
+    if (count > 1) {
+      return Random.shuffle(arr).slice(0, count);
+    }
+    return arr[Random.integer(0, arr.length)()];
+  }
+}
+
 
 function getTag(source) {
   return Object.prototype.toString.call(source);
@@ -215,4 +278,12 @@ export function bindOnClick(el, func) {
 export async function loadJSON(url, errMsg) {
   return await fetch(url).then(res => res.json())
     .catch(err => errMsg && Dialog.error(errMsg));
+}
+
+export async function loadImage(url) {
+  const img = createElement({ tag: 'img' });
+  return new Promise((resolve, reject) => {
+    img.onload = () => resolve(img);
+    img.src = url;
+  });
 }

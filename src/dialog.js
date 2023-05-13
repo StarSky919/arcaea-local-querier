@@ -37,13 +37,13 @@ export class Dialog {
       this._buttons.children[0].innerText = '返回';
       this._buttons.children[0].classList.remove('full_width');
     }
-    const close = () => this.close();
+    const close = this.close.bind(this);
     const button = createElement({
       tag: 'span',
       classList: ['button'],
       text
     });
-    bindOnClick(button, async event => await func.call(this, close) !== false && close());
+    bindOnClick(button, async event => await func.call(this, close) !== false && await close());
     this._buttons.appendChild(button);
     return this;
   }
@@ -56,14 +56,26 @@ export class Dialog {
     return this;
   }
 
-  close(inner = false) {
-    if (this.closed) return false;
-    this._container.classList.add('hidden');
-    sleep(0.5 * Time.second).then(() => {
-      body.removeChild(this._container);
-      this.closed = true;
+  close() {
+    if (this.closed) return;
+    this.closed = true;
+    return new Promise(resolve => {
+      this._container.classList.add('hidden');
+      sleep(0.5 * Time.second).then(() => {
+        body.removeChild(this._container);
+        resolve();
+      });
     });
-    return true;
+  }
+
+  getButton(index) {
+    const button = this._buttons.children[index];
+    return {
+      button,
+      enable() { button.classList.remove('disable'); },
+      disable() { button.classList.add('disable'); },
+      setText(text) { button.innerText = text; }
+    };
   }
 
   static show(content, title, options) {

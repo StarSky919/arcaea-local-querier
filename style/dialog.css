@@ -54,22 +54,6 @@
   text-align: center;
 }
 
-.dialog_box .content::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 5px;
-}
-
-.dialog_box .content::-webkit-scrollbar {
-  width: 0.25rem;
-  border-radius: 5px;
-}
-
-.dialog_box .content::-webkit-scrollbar-thumb {
-  background: #CFCFCF;
-  background-clip: padding-box;
-  border-radius: 5px;
-}
-
 .dialog_box .content .row {
   margin: 0.65rem 0;
 }

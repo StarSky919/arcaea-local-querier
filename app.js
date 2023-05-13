@@ -54,6 +54,20 @@ bindOnClick('about_website', event => {
 });
 
 async function main(SQL) {
+  const fontLoader = createElement({
+    tag: 'div',
+    style: {
+      visibility: 'hidden',
+      position: 'fixed',
+      top: 0,
+      'font-family': 'CeraPro',
+      'pointer-events': 'none',
+      'user-select': 'none'
+    },
+    html: 'Test<strong>Test</strong>'
+  })
+  document.body.appendChild(fontLoader);
+
   const playerInfo = $('player_info');
   const searchContainer = $('search_container');
   const searchBox = $('search_box');

@@ -1,3 +1,4 @@
+import { VERSION } from '/src/constants.js';
 import {
   Time,
   Random,
@@ -124,12 +125,13 @@ export async function generate(name = 'Unknown', songs, records = []) {
       nearCount,
       missCount
     } = b30[i];
-    const { title_localized } = songs.find(({ id }) => id === songId);
+    const { title_localized, difficulties } = songs.find(({ id }) => id === songId);
 
     ctx.textBaseline = 'top';
     ctx.textAlign = 'left';
     ctx.font = `bold ${fs2 * 1.25}px "CeraPro"`;
-    ctx.fillText(title_localized.en, left, Y, boxWidth);
+    const titleLocalized = difficulties[songDifficulty].title_localized;
+    ctx.fillText(isNullish(titleLocalized) ? title_localized.en : titleLocalized.en, left, Y, boxWidth);
 
     Y += boxPadding * 1.4;
     ctx.fillStyle = perfectCount - shinyPerfectCount + nearCount + missCount === 0 ? '#CCFFFF' : fontColor;
@@ -163,6 +165,11 @@ export async function generate(name = 'Unknown', songs, records = []) {
     ctx.textAlign = 'right';
     ctx.fillText(`${getClearType(clearType)}`, right, reverseY, boxWidth);
   }
+  
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = backgroundColor;
+  ctx.fillText(`Arcaea Local Querier v${VERSION.join('.')}    https://alq.starsky919.xyz/`, realWidth / 2, realHeight - padding / 2);
 
   return cav.toDataURL();
 }

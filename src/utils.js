@@ -1,22 +1,3 @@
-Array.prototype.toSorted = Array.prototype.toSorted || function(compareFn) {
-  const arr = this.slice();
-  return arr.sort(compareFn);
-}
-Array.prototype.toReversed = Array.prototype.toReversed || function() {
-  const arr = this.slice();
-  return arr.reverse();
-}
-Array.prototype.toSpliced = Array.prototype.toSpliced || function(start, deleteCount, ...items) {
-  const arr = this.slice();
-  return arr.splice(start, deleteCount, ...items);
-}
-Array.prototype.with = Array.prototype.with || function(index, value) {
-  const arr = this.slice();
-  arr[index] = value;
-  return arr;
-}
-
-
 Promise.stop = value => new Promise(() => { Promise.resolve(value) });
 
 export const $ = id => document.getElementById(id);
@@ -164,6 +145,10 @@ export function isEmpty(source) {
     }
   }
   return true;
+}
+
+export function inRange(num, min, max) {
+  return (num - min) * (num - max) <= 0;
 }
 
 export function* range(min, max, step = 1) {

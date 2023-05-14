@@ -9,10 +9,11 @@ import {
   isEmpty,
   rounding,
   flooring,
-  sleep,
+  inRange,
   range,
   staggeredMerge,
   throttle,
+  sleep,
   bindOnClick,
   compile,
   createElement,
@@ -21,7 +22,7 @@ import {
 } from '/src/utils.js';
 import { generate } from '/src/generator.js';
 import Datastore from '/src/datastore.js';
-import Dialog from '/src/dialog.js';
+import { Dialog, ItemSelectorDialog } from '/src/dialog.js';
 
 try {
   localStorage.setItem('test', true);
@@ -32,11 +33,13 @@ try {
 
 window.log = console.log;
 window.alqSettings = new Datastore('alqs:');
-if (!alqSettings.has('sort_order')) alqSettings.set('sort_order', 1);
 
 $('version').innerText = `v${VERSION.join('.')}`;
 window.addEventListener('error', err => {
   Dialog.error(`发生了错误！\n请将以下错误信息截图并及时反馈。\n\n错误信息：\n${err.message}\n(${err.filename}:${err.lineno}:${err.colno})`)
+}, true);
+window.addEventListener('unhandledrejection', err => {
+  Dialog.error(`发生了错误！\n请将以下错误信息截图并及时反馈。\n\n错误信息：\n${err.reason}`);
 });
 
 let changelog;
@@ -154,9 +157,8 @@ async function main(SQL) {
     return ['Track Lost', 'Normal Clear', 'Full Recall', 'Pure Memory', 'Easy Clear', 'Hard Clear'][clearType]
   }
 
-  function getSortMethod(order) {
-    order = order || alqSettings.get('sort_order')
-    return [(a, b) => b.rating - a.rating, (a, b) => b.constant - a.constant, (a, b) => Math.min(b.score, 1e7) - Math.min(a.score, 1e7)][order - 1];
+  function getSortMethod(order = 0) {
+    return [(a, b) => b.rating - a.rating, (a, b) => b.constant - a.constant, (a, b) => Math.min(b.score, 1e7) - Math.min(a.score, 1e7)][order];
   }
 
   const searchFn = throttle(event => {
@@ -167,6 +169,7 @@ async function main(SQL) {
     for (const i of range(recordList.childNodes.length)) {
       const recordBox = recordList.childNodes[i];
       const { songid, difficulty } = recordBox.dataset;
+      if (isNullish(songid) || isNullish(difficulty)) continue;
       const { title_localized, difficulties } = songs.find(({ id }) => id === songid);
       const data = { node: recordBox };
       if (input === songid) {
@@ -225,13 +228,22 @@ async function main(SQL) {
   function renderRecords() {
     clearChildNodes(recordList);
     if (isNullish(window.scores)) return;
+    const sortOrder = alqSettings.get('sort_order') || 0;
+    const difficultyFilter = alqSettings.get('difficulty_filter') || [];
+    const constantFilter = alqSettings.get('constant_filter') || [];
     const records = window.scores.slice();
     const b30 = records.slice(0, 30);
     const b30avg = b30.reduce((total, record) => total + record.rating, 0) / 30;
     const maxptt = (b30avg * 30 + b30.slice(0, 10).reduce((total, record) => total + record.rating, 0)) / 40;
-    const sortedRecords = records.toSorted(getSortMethod());
+    let finalRecords = records;
+    if (!isEmpty(difficultyFilter)) finalRecords = finalRecords.filter(({ songDifficulty }) => difficultyFilter.includes(songDifficulty));
+    if (!isEmpty(constantFilter)) {
+      const [min, max] = constantFilter;
+      finalRecords = finalRecords.filter(({ constant }) => inRange(constant, min, max));
+    }
+    finalRecords.sort(getSortMethod(sortOrder))
     const recordFrag = document.createDocumentFragment();
-    for (const record of sortedRecords) {
+    for (const record of finalRecords) {
       const song = songs.find(({ id }) => id === record.songId);
       if (isNullish(song)) continue;
       const { id, title_localized, artist, difficulties } = song;
@@ -244,6 +256,24 @@ async function main(SQL) {
       recordBox.dataset.songid = id;
       recordBox.dataset.difficulty = record.songDifficulty;
       recordFrag.appendChild(compile(recordBox, data));
+    }
+    while (recordFrag.children.length % 3) {
+      const [recordBox] = recordBoxTemplate.content.cloneNode(true).children;
+      recordFrag.appendChild(compile(recordBox, {
+        ranking: -1,
+        title: 'PLACEHOLDER',
+        artist: '--',
+        scoreDisplay: '00\'000\'000',
+        rank: '--',
+        difficultyName: '--',
+        constant: 0,
+        ratingDisplay: 0,
+        clearTypeDisplay: '--',
+        perfectCount: 0,
+        shinyPerfectCount: 0,
+        nearCount: 0,
+        missCount: 0
+      }));
     }
     recordList.appendChild(recordFrag);
     $('b30_average').innerText = rounding(b30avg, 4);
@@ -305,46 +335,6 @@ async function main(SQL) {
       .button('导入', () => dbFile.click()).show();
   });
 
-  bindOnClick('sort_order', event => {
-    function setStyle(node, selected) {
-      if (selected) {
-        node.classList.add('selected');
-        node.style.background = 'var(--background-color-second)';
-      } else {
-        node.classList.remove('selected');
-        node.style.background = 'transparent';
-      }
-    }
-    const selects = createElement({ tag: 'div' });
-    for (const [id, text] of [[1, '单曲PTT'], [2, '定数'], [3, '分数']]) {
-      const item = createElement({
-        tag: 'div',
-        style: {
-          padding: '0.8rem 0',
-          'border-radius': 'var(--border-radius)',
-          transition: 'background 0.2s'
-        },
-        text
-      });
-      item.dataset.id = id;
-      item.onclick = event => {
-        for (const node of selects.$$('*')) {
-          setStyle(node, false);
-        }
-        setStyle(item, true);
-      }
-      if (alqSettings.get('sort_order') === id) setStyle(item, true);
-      selects.appendChild(item);
-    }
-    new Dialog()
-      .title('排序方式')
-      .content(selects)
-      .button('确定', () => {
-        alqSettings.set('sort_order', Number(selects.$$('.selected').dataset.id));
-        renderRecords();
-      }).show();
-  });
-
   bindOnClick('generate_image', event => {
     if (isNullish(window.scores)) return Dialog.error('请先导入一个存档！', { cancellable: true });
     const dialog = new Dialog()
@@ -383,12 +373,85 @@ async function main(SQL) {
     if (isEmpty(nameInput.value)) sleep(Time.second * 0.5).then(() => nameInput.focus());
   });
 
+  bindOnClick('sort_order', event => {
+    new ItemSelectorDialog({ settingName: 'sort_order', defaultValue: 0 })
+      .title('排序方式')
+      .setItem([{ id: 0, text: '单曲PTT' }, { id: 1, text: '定数' }, { id: 2, text: '分数' }])
+      .onConfirm(() => renderRecords())
+      .show();
+  });
+
+  bindOnClick('difficulty_filter', event => {
+    new ItemSelectorDialog({ settingName: 'difficulty_filter', multiple: true, defaultValue: [0, 1, 2, 3] })
+      .title('筛选难度')
+      .setItem([{ id: 0, text: 'Past' }, { id: 1, text: 'Present' }, { id: 2, text: 'Future' }, { id: 3, text: 'Beyond' }])
+      .onConfirm(() => renderRecords())
+      .show();
+  });
+
+  bindOnClick('constant_filter', event => {
+    const dialog = new Dialog()
+      .title('筛选定数');
+    const container = createElement({ tag: 'div' });
+    const input = createElement({
+      tag: 'input',
+      attr: { type: 'text', placeholder: '输入定数范围' },
+      style: {
+        width: '100%',
+        'margin-top': '1rem',
+        padding: '0.65rem 1rem',
+        color: 'var(--text-color)',
+        background: 'var(--background-color-second)',
+        'border-radius': 'var(--border-radius)',
+        'font-size': '1em',
+        'text-align': 'center'
+      }
+    });
+    const constantFilter = alqSettings.get('constant_filter') || [];
+    if (!isEmpty(constantFilter)) {
+      const [min, max] = constantFilter;
+      if (min === max) input.value = min;
+      else if (max === 9999) input.value = `${min}+`;
+      else if (min === -9999) input.value = `${max}-`;
+      else input.value = `${min}~${max}`;
+    }
+    container.appendChild(createElement({
+      tag: 'div',
+      text: '示例：\n只显示定数11.0：11.0\n定数大于等于10.7：10.7+\n定数小于等于9.9：9.9-\n定数在10.0与10.9之间：10.0~10.9\n所有符号均为英文符号'
+    }));
+    container.appendChild(input);
+    dialog.content(container)
+      .button('确定', close => {
+        const source = input.value.trim();
+        let min = 0,
+          max = 0;
+        if (/^([0-9]{1,2}|[0-9]{1,2}\.[0-9])$/.test(source)) {
+          min = max = Number(source);
+        } else if (/^([0-9]{1,2}|[0-9]{1,2}\.[0-9])\+$/.test(source)) {
+          min = Number(source.slice(0, -1));
+          max = 9999;
+        } else if (/^([0-9]{1,2}|[0-9]{1,2}\.[0-9])\-$/.test(source)) {
+          min = -9999;
+          max = Number(source.slice(0, -1));
+        } else if (/^([0-9]{1,2}|[0-9]{1,2}\.[0-9])\~([0-9]{1,2}|[0-9]{1,2}\.[0-9])$/.test(source)) {
+          let [a, b] = source.split('~');
+          a = Number(a), b = Number(b);
+          min = Math.min(a, b);
+          max = Math.max(a, b);
+        }
+        if (!isEmpty(source) && min + max === 0) return Dialog.error('请输入正确的范围！', { cancellable: true }), false;
+        alqSettings.set('constant_filter', isEmpty(source) ? [] : [min, max]);
+        renderRecords();
+      }).show();
+    if (isEmpty(input.value)) sleep(Time.second * 0.5).then(() => input.focus());
+  });
+
   bindOnClick(recordList, event => {
     const recordBox = event.target;
     if (!recordBox.classList.contains('record_box')) return;
     const { songid, difficulty } = recordBox.dataset;
     if (isNullish(songid) || isNullish(difficulty)) return;
-    const { title_localized, jacket_localized, artist, bpm, set, date, version, difficulties } = songs.find(({ id }) => id === songid);
+    const { title_localized, artist, bpm, set, date, version, difficulties } = songs.find(({ id }) => id === songid);
     const content = [];
     if (title_localized.ja) content.push(title_localized.ja);
     if (title_localized.en) content.push(title_localized.en);
@@ -400,8 +463,20 @@ async function main(SQL) {
     const packParentName = pack.pack_parent ? packs.find(({ id }) => id === pack.pack_parent).name_localized.en + ' - ' : '';
     content.push(`曲包：${packParentName}${packName}`);
     content.push(`版本：${version} 时间：${new Date(date * 1e3).toLocaleDateString()}`);
-    for (const { ratingClass, chartDesigner, jacketDesigner, rating, ratingPlus, title_localized, artist, bpm, date, version } of difficulties) {
-      // TODO 谱面信息
+    content.push('');
+    for (const { ratingClass, chartDesigner, jacketDesigner, title_localized, artist, bpm, date, version } of difficulties) {
+      content.push('');
+      if (title_localized) {
+        if (title_localized.ja) content.push(title_localized.ja);
+        if (title_localized.en) content.push(title_localized.en);
+        if (title_localized['zh-Hans']) content.push(title_localized['zh-Hans']);
+      }
+      content.push(`${getDifficultyName(ratingClass)} ${consts[songid][ratingClass].constant}`);
+      if (artist) content.push(`曲师：${artist}`);
+      if (jacketDesigner) content.push(`曲绘：${jacketDesigner}`);
+      if (chartDesigner) content.push(`谱师：${chartDesigner}`);
+      if (bpm) content.push(`BPM：${bpm}`);
+      if (version && date) content.push(`版本：${version} 时间：${new Date(date * 1e3).toLocaleDateString()}`);
     }
     new Dialog()
       .title('歌曲详情')

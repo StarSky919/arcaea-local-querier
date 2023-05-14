@@ -404,6 +404,10 @@ body.loaded main {
     overflow: hidden;
   }
 
+  #record_list .record_box:nth-last-of-type(-n+3) {
+    border: none;
+  }
+
   #record_list .record_box * {
     overflow: hidden;
     text-overflow: ellipsis;

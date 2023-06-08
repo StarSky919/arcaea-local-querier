@@ -13804,6 +13804,216 @@
           "ratingPlus": true
         }
       ]
+    },
+    {
+      "idx": 318,
+      "id": "galacticlove",
+      "title_localized": {
+        "en": "Galactic Love"
+      },
+      "artist": "La prière",
+      "bpm": "145",
+      "bpm_base": 145,
+      "set": "single",
+      "purchase": "galacticlove",
+      "audioPreview": 0,
+      "audioPreviewEnd": 0,
+      "side": 0,
+      "bg": "single2_light",
+      "bg_inverse": "single2_conflict",
+      "remote_dl": true,
+      "world_unlock": false,
+      "date": 1684972800,
+      "version": "4.4",
+      "difficulties": [
+        {
+          "ratingClass": 0,
+          "chartDesigner": "én",
+          "jacketDesigner": "",
+          "rating": 3
+        },
+        {
+          "ratingClass": 1,
+          "chartDesigner": "én",
+          "jacketDesigner": "",
+          "rating": 6
+        },
+        {
+          "ratingClass": 2,
+          "chartDesigner": "én",
+          "jacketDesigner": "",
+          "rating": 9
+        }
+      ]
+    },
+    {
+      "idx": 319,
+      "id": "lawlesspoint",
+      "title_localized": {
+        "en": "Lawless Point",
+        "ja": "無法地点"
+      },
+      "artist": "La prière",
+      "bpm": "148",
+      "bpm_base": 148,
+      "set": "extend_2",
+      "purchase": "extend_2",
+      "audioPreview": 0,
+      "audioPreviewEnd": 0,
+      "side": 1,
+      "bg": "single2_conflict",
+      "bg_inverse": "single2_light",
+      "remote_dl": true,
+      "world_unlock": true,
+      "date": 1684972801,
+      "version": "4.4",
+      "difficulties": [
+        {
+          "ratingClass": 0,
+          "chartDesigner": "Luxance",
+          "jacketDesigner": "",
+          "rating": 3
+        },
+        {
+          "ratingClass": 1,
+          "chartDesigner": "Luxance",
+          "jacketDesigner": "",
+          "rating": 6
+        },
+        {
+          "ratingClass": 2,
+          "chartDesigner": "Luxance",
+          "jacketDesigner": "",
+          "rating": 8
+        }
+      ]
+    },
+    {
+      "idx": 320,
+      "id": "lostintheabyss",
+      "title_localized": {
+        "en": "Lost in the Abyss"
+      },
+      "artist": "FELT",
+      "bpm": "183",
+      "bpm_base": 183,
+      "set": "single",
+      "purchase": "lostintheabyss",
+      "audioPreview": 0,
+      "audioPreviewEnd": 0,
+      "side": 1,
+      "bg": "touhou_conflict",
+      "bg_inverse": "touhou_light",
+      "remote_dl": true,
+      "source_copyright": "©上海アリス幻樂団",
+      "world_unlock": false,
+      "date": 1684972802,
+      "version": "4.4",
+      "difficulties": [
+        {
+          "ratingClass": 0,
+          "chartDesigner": "Nitro",
+          "jacketDesigner": "AO",
+          "rating": 3
+        },
+        {
+          "ratingClass": 1,
+          "chartDesigner": "Nitro",
+          "jacketDesigner": "AO",
+          "rating": 6
+        },
+        {
+          "ratingClass": 2,
+          "chartDesigner": "Nitro",
+          "jacketDesigner": "AO",
+          "rating": 9,
+          "ratingPlus": true
+        }
+      ]
+    },
+    {
+      "idx": 321,
+      "id": "hybris",
+      "title_localized": {
+        "en": "Hybris (The one who shattered)",
+        "ja": "ヒュブリスの頂に聳えるのは"
+      },
+      "artist": "qfeileadh feat.のあ",
+      "bpm": "158",
+      "bpm_base": 158,
+      "set": "extend_2",
+      "purchase": "extend_2",
+      "audioPreview": 0,
+      "audioPreviewEnd": 0,
+      "side": 1,
+      "bg": "vs_conflict",
+      "bg_inverse": "vs_light",
+      "remote_dl": true,
+      "world_unlock": true,
+      "date": 1684972803,
+      "version": "4.4",
+      "difficulties": [
+        {
+          "ratingClass": 0,
+          "chartDesigner": "Exschwasion",
+          "jacketDesigner": "",
+          "rating": 4
+        },
+        {
+          "ratingClass": 1,
+          "chartDesigner": "Exschwasion",
+          "jacketDesigner": "",
+          "rating": 7
+        },
+        {
+          "ratingClass": 2,
+          "chartDesigner": "Exschwasion",
+          "jacketDesigner": "",
+          "rating": 9,
+          "ratingPlus": true
+        }
+      ]
+    },
+    {
+      "idx": 322,
+      "id": "tothemilkyway",
+      "title_localized": {
+        "en": "To the Milky Way"
+      },
+      "artist": "黒魔",
+      "bpm": "186",
+      "bpm_base": 186,
+      "set": "single",
+      "purchase": "tothemilkyway",
+      "audioPreview": 0,
+      "audioPreviewEnd": 0,
+      "side": 0,
+      "bg": "nijuusei2_light",
+      "bg_inverse": "nijuusei2_conflict",
+      "remote_dl": true,
+      "world_unlock": false,
+      "date": 1684972804,
+      "version": "4.4",
+      "difficulties": [
+        {
+          "ratingClass": 0,
+          "chartDesigner": "Nitroだー！",
+          "jacketDesigner": "Bison",
+          "rating": 5
+        },
+        {
+          "ratingClass": 1,
+          "chartDesigner": "Nitroだー！",
+          "jacketDesigner": "Bison",
+          "rating": 8
+        },
+        {
+          "ratingClass": 2,
+          "chartDesigner": "Nitroだー！",
+          "jacketDesigner": "Bison",
+          "rating": 10
+        }
+      ]
     }
   ]
 }

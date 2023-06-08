@@ -4598,6 +4598,76 @@
         "constant": 9.9,
         "old": false
       }
+    ],
+    "galacticlove": [
+      {
+        "constant": 3.0,
+        "old": false
+      },
+      {
+        "constant": 6.0,
+        "old": false
+      },
+      {
+        "constant": 9.0,
+        "old": false
+      }
+    ],
+    "lawlesspoint": [
+      {
+        "constant": 3.0,
+        "old": false
+      },
+      {
+        "constant": 6.0,
+        "old": false
+      },
+      {
+        "constant": 8.9,
+        "old": false
+      }
+    ],
+    "lostintheabyss": [
+      {
+        "constant": 3.5,
+        "old": false
+      },
+      {
+        "constant": 6.5,
+        "old": false
+      },
+      {
+        "constant": 9.7,
+        "old": false
+      }
+    ],
+    "hybris": [
+      {
+        "constant": 4.5,
+        "old": false
+      },
+      {
+        "constant": 7.5,
+        "old": false
+      },
+      {
+        "constant": 9.8,
+        "old": false
+      }
+    ],
+    "tothemilkyway": [
+      {
+        "constant": 5.0,
+        "old": false
+      },
+      {
+        "constant": 8.7,
+        "old": false
+      },
+      {
+        "constant": 10.5,
+        "old": false
+      }
     ]
   }
 }

@@ -5,7 +5,6 @@ import {
   isNullish,
   rounding,
   range,
-  sleep,
   createElement,
   loadImage
 } from '/src/utils.js';
@@ -19,8 +18,7 @@ function getClearType(clearType) {
   return ['TL', 'NC', 'FR', 'PM', 'EC', 'HC'][clearType]
 }
 
-const cav = createElement({
-  tag: 'canvas',
+const cav = createElement('canvas', {
   style: {
     width: '100%',
     height: 'auto'
@@ -165,7 +163,7 @@ export async function generate(name = 'Unknown', songs, records = []) {
     ctx.textAlign = 'right';
     ctx.fillText(`${getClearType(clearType)}`, right, reverseY, boxWidth);
   }
-  
+
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = backgroundColor;

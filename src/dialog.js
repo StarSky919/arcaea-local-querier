@@ -1,4 +1,13 @@
-import { $, noop, Time, isNullish, isEmpty, isFunction, isArray, sleep, createElement, bindOnClick } from './utils.js';
+import {
+  $,
+  noop,
+  Time,
+  isNullish,
+  isEmpty,
+  sleep,
+  createElement,
+  bindOnClick
+} from './utils.js';
 
 const { body } = document;
 const template = $('dialog_template');
@@ -48,10 +57,9 @@ export class Dialog {
       this._buttons.children[0].classList.remove('full_width');
     }
     const close = this.close.bind(this);
-    const button = createElement({
-      tag: 'span',
+    const button = createElement('span', {
       classList: ['button'],
-      text
+      innerText: text
     });
     bindOnClick(button, async event => await func.call(this, close) !== false && await close());
     this._buttons.appendChild(button);
@@ -70,9 +78,10 @@ export class Dialog {
     if (this.closed) return;
     this.closed = true;
     return new Promise(resolve => {
-      this._container.classList.add('hidden');
+      const container = this._container;
+      container.classList.add('hidden');
       sleep(0.5 * Time.second).then(() => {
-        body.removeChild(this._container);
+        body.removeChild(container);
         resolve();
       });
     });
@@ -111,7 +120,7 @@ export class ItemSelectorDialog extends Dialog {
   constructor(options) {
     super(options);
     const { settingName, defaultValue } = options;
-    this.selects = createElement({ tag: 'div' });
+    this.selects = createElement('div');
     this.items = [];
     this._onItemClick = noop;
     this._onConfirm = noop;
@@ -141,30 +150,23 @@ export class ItemSelectorDialog extends Dialog {
   show() {
     const { settingName, multiple } = this._options;
     for (const { id, text } of this.items) {
-      const item = createElement({
-        tag: 'div',
-        style: {
-          margin: '0.35rem 0',
-          padding: '0.8rem 0',
-          'border-radius': 'var(--border-radius)',
-          transition: 'background 0.2s'
+      const item = createElement('div', {
+        classList: ['selector_item'],
+        dataset: {
+          id
         },
-        text
+        innerText: text
       });
-      item.dataset.id = id;
       item.onclick = event => {
-        if (multiple) {
-          setStyle(item, !item.classList.contains('selected'));
-        } else {
-          for (const node of this.selects.$$('*')) {
-            setStyle(node, false);
-          }
+        if (multiple) setStyle(item, !item.classList.contains('selected'));
+        else {
+          for (const node of this.selects.$$('*')) setStyle(node, false);
           setStyle(item, true);
         }
         this._onItemClick.call(item, id);
       }
       const saved = alqSettings.get(settingName);
-      if (!isNullish(settingName) && multiple ? saved.includes(id) : saved === id) setStyle(item, true);
+      if (!isNullish(saved) && multiple ? saved.includes(id) : saved === id) setStyle(item, true);
       this.selects.appendChild(item);
     }
     this.content(this.selects);

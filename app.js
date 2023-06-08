@@ -5,16 +5,15 @@ import {
   $$,
   Time,
   isNullish,
-  isNumber,
   isEmpty,
   rounding,
-  flooring,
   inRange,
   range,
   staggeredMerge,
   throttle,
   sleep,
   bindOnClick,
+  blurAll,
   compile,
   createElement,
   clearChildNodes,
@@ -57,8 +56,7 @@ bindOnClick('about_website', event => {
 });
 
 async function main(SQL) {
-  const fontLoader = createElement({
-    tag: 'div',
+  const fontLoader = createElement('div', {
     style: {
       visibility: 'hidden',
       position: 'fixed',
@@ -67,7 +65,7 @@ async function main(SQL) {
       'pointer-events': 'none',
       'user-select': 'none'
     },
-    html: 'Test<strong>Test</strong>'
+    innerHTML: 'Test<strong>Test</strong>'
   })
   document.body.appendChild(fontLoader);
 
@@ -119,8 +117,8 @@ async function main(SQL) {
     return isEmpty(result) ? null : { title, result, inputLength: length, titleLength: title.length };
   }
 
-  function formatScore(score) {
-    const text = score?.toString().padStart(8, '0');
+  function formatScore(score = '') {
+    const text = score.toString().padStart(8, '0');
     let result = "";
     for (let i = text.length - 1, j = 1; i >= 0; i--, j++) {
       if (j % 3 === 0 && i !== 0) {
@@ -182,7 +180,7 @@ async function main(SQL) {
       if (data.priority) results.push(data);
     }
     results.sort((a, b) => b.priority - a.priority);
-    resultBox.appendChild(createElement({ tag: 'div', classList: ['result_item'], text: isEmpty(results) ? '搜索无结果。' : `搜索到 ${results.length} 条记录（点击可跳转）：` }));
+    resultBox.appendChild(createElement('div', { classList: ['result_item'], innerText: isEmpty(results) ? '搜索无结果。' : `搜索到 ${results.length} 条记录（点击可跳转）：` }));
     const resultFrag = document.createDocumentFragment();
     for (const { node, matchedIndexes } of results) {
       const [resultItem] = resultItemTemplate.content.cloneNode(true).children;
@@ -210,14 +208,17 @@ async function main(SQL) {
 
         const titleFrag = document.createDocumentFragment();
         for (const { split, matched } of splitChars) {
-          titleFrag.appendChild(createElement({ tag: 'span', classList: [matched ? 'matched' : 'not_matched'], text: split }));
+          titleFrag.appendChild(createElement('span', { classList: [matched ? 'matched' : 'not_matched'], innerText: split }));
         }
         item.$$('.title').appendChild(titleFrag);
       } else item.$$('.title').innerText = node.$$('.title').innerText;
-      item.onclick = event => window.scrollTo({
-        top: node.offsetTop + node.offsetHeight * 0.5 - window.innerHeight / 2,
-        behavior: 'smooth'
-      });
+      item.onclick = event => {
+        window.scrollTo({
+          top: node.offsetTop + node.offsetHeight * 0.5 - window.innerHeight / 2,
+          behavior: 'smooth'
+        });
+
+      }
       resultFrag.appendChild(item);
     };
     resultBox.appendChild(resultFrag);
@@ -339,9 +340,9 @@ async function main(SQL) {
     if (isNullish(window.scores)) return Dialog.error('请先导入一个存档！', { cancellable: true });
     const dialog = new Dialog()
       .title('生成图片');
-    const nameInput = createElement({
-      tag: 'input',
-      attr: { type: 'text', placeholder: '输入你的名字' },
+    const nameInput = createElement('input', {
+      type: 'text',
+      placeholder: '输入你的名字',
       style: {
         width: '100%',
         padding: '0.65rem 1rem',
@@ -363,7 +364,7 @@ async function main(SQL) {
             new Dialog({ cancellable: false })
               .title('生成图片')
               .content('成功！点击“下载”按钮即可保存。')
-              .button('下载', () => createElement({ tag: 'a', attr: { download: 'image.png', href: dataURL } }).click()).show();
+              .button('下载', () => createElement('a', { download: 'image.png', href: dataURL }).click()).show();
           })
           .catch(err => {
             Dialog.error(`图片生成失败！\n请将以下错误信息截图并及时反馈。\n\n错误信息：\n${err.stack}`);
@@ -392,10 +393,10 @@ async function main(SQL) {
   bindOnClick('constant_filter', event => {
     const dialog = new Dialog()
       .title('筛选定数');
-    const container = createElement({ tag: 'div' });
-    const input = createElement({
-      tag: 'input',
-      attr: { type: 'text', placeholder: '输入定数范围' },
+    const container = createElement('div');
+    const input = createElement('input', {
+      type: 'text',
+      placeholder: '输入定数范围',
       style: {
         width: '100%',
         'margin-top': '1rem',
@@ -415,9 +416,8 @@ async function main(SQL) {
       else if (min === -9999) input.value = `${max}-`;
       else input.value = `${min}~${max}`;
     }
-    container.appendChild(createElement({
-      tag: 'div',
-      text: '示例：\n只显示定数11.0：11.0\n定数大于等于10.7：10.7+\n定数小于等于9.9：9.9-\n定数在10.0与10.9之间：10.0~10.9\n所有符号均为英文符号'
+    container.appendChild(createElement('div', {
+      innerText: '示例：\n只显示定数11.0：11.0\n定数大于等于10.7：10.7+\n定数小于等于9.9：9.9-\n定数在10.0与10.9之间：10.0~10.9\n所有符号均为英文符号'
     }));
     container.appendChild(input);
     dialog.content(container)

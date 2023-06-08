@@ -3,6 +3,20 @@
 @import "/style/dialog.css";
 
 :root {
+  --white: #FFF;
+  --black: #111;
+  --black2: #333;
+  --light-gray: #EFEFEF;
+  --gray: #BFBFBF;
+  --dark-gray: #9F9F9F;
+  --theme-color: #9898FF;
+  --text-color: var(--black);
+  --text-color-reverse: var(--white);
+  --background-color: var(--white);
+  --background-color-second: var(--light-gray);
+  --border-color: var(--gray);
+  --border-radius: 1rem;
+
   font-size: 16px;
 }
 
@@ -27,24 +41,20 @@
 }
 
 body {
-  --white: #FFF;
-  --black: #222;
-  --light-gray: #EFEFEF;
-  --gray: #BFBFBF;
-  --dark-gray: #9F9F9F;
-  --theme-color: #9898FF;
-  --text-color: var(--black);
-  --text-color-second: var(--dark-gray);
-  --text-color-reverse: var(--white);
-  --background-color: var(--white);
-  --background-color-second: var(--light-gray);
-  --border-color: var(--gray);
-  --border-radius: 1rem;
-
   font-size: 1rem;
   text-indent: 0;
   color: var(--text-color);
   background: var(--background-color);
+}
+
+@media (prefers-color-scheme:dark) {
+  body {
+    --text-color: var(--white);
+    --text-color-reverse: var(--black);
+    --background-color: var(--black);
+    --background-color-second: var(--black2);
+    --border-color: var(--dark-gray);
+  }
 }
 
 main {
@@ -60,6 +70,23 @@ main {
 main>* {
   margin: 0.65rem 0;
   border: 1px solid transparent;
+}
+
+main {
+  opacity: 0;
+  transform: translateY(10vh);
+}
+
+body:not(.loaded) {
+  position: fixed;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
+body.loaded main {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s, transform 0.5s;
 }
 
 p {
@@ -108,23 +135,6 @@ p {
   transform: scale(0.75);
   transition: opacity 0.5s, transform 0.5s;
   pointer-events: none;
-}
-
-main {
-  opacity: 0;
-  transform: translateY(10vh);
-}
-
-body:not(.loaded) {
-  position: fixed;
-  max-height: 100vh;
-  overflow: hidden;
-}
-
-body.loaded main {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.5s, transform 0.5s;
 }
 
 .loading {
@@ -191,6 +201,10 @@ body.loaded main {
 
 .button.disable {
   pointer-events: none;
+}
+
+.button:not(.disable) {
+  cursor: pointer;
 }
 
 .button::before {

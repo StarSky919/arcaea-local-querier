@@ -58,6 +58,15 @@
   margin: 0.65rem 0;
 }
 
+.dialog_box .content .selector_item {
+  margin: 0.35rem 0;
+  padding: 0.8rem 0;
+  border-radius: var(--border-radius);
+  transition: background 0.2s;
+  user-select: none;
+  cursor: pointer;
+}
+
 .dialog_box .buttons {
   display: flex;
   justify-content: space-around;

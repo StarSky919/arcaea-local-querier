@@ -1,1 +1,1 @@
-export const VERSION = [0, 2, 514];
+export const VERSION = [0, 2, 608];

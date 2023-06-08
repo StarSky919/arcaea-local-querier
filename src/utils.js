@@ -94,7 +94,6 @@ export const Random = {
   }
 }
 
-
 function getTag(source) {
   return Object.prototype.toString.call(source);
 }
@@ -152,7 +151,7 @@ export function inRange(num, min, max) {
 }
 
 export function* range(min, max, step = 1) {
-  if (max === void 0) max = min, min = 0;
+  if (isNullish(max)) max = min, min = 0;
   for (let i = min; i < max; i += step) {
     yield i;
   }
@@ -174,7 +173,7 @@ export function staggeredMerge(target, offset, ...sources) {
   }, []));
   for (const i of range(maxCount)) {
     for (const arr of [target, ...sources]) {
-      result.push(arr[i] ?? null);
+      result.push(isNullish(arr[i]) ? null : arr[i]);
     }
   }
   return result;
@@ -224,20 +223,39 @@ export function throttle(callback, delay) {
   }
 }
 
-export function createElement({ tag, id, classList, attr, style, cssText, text, html }) {
+export function createElement(tag, props = {}, children = []) {
   const el = document.createElement(tag);
-  id && (el.id = id);
-  classList && el.classList.add(...classList);
-  attr && Object.keys(attr).forEach(name => el.setAttribute(name, attr[name]));
-  style && Object.keys(style).forEach(name => el.style[name] = style[name]);
-  cssText && (el.style.cssText += cssText);
-  text && (el.innerText = text);
-  html && (el.innerHTML = html);
+  for (const [key, value] of Object.entries(props)) switch (key) {
+    case 'classList':
+      el.classList.add(...value);
+      break;
+    case 'style':
+    case 'dataset':
+      for (const prop of Object.keys(value)) el[key][prop] = value[prop];
+      break;
+    default:
+      el[key] = value;
+  }
+  for (const child of children) el.appendChild(child);
   return el;
 }
 
 export function clearChildNodes(node) {
   for (let i = node.childNodes.length; i--;) node.removeChild(node.childNodes[i]);
+}
+
+export function blurAll() {
+  const temp = createElement('input', {
+    style: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      opacity: 0
+    }
+  });
+  document.body.appendChild(temp);
+  temp.focus();
+  document.body.removeChild(temp);
 }
 
 export function compile(node, data) {
@@ -261,12 +279,11 @@ export function bindOnClick(el, func) {
 }
 
 export async function loadJSON(url, errMsg) {
-  return await fetch(url).then(res => res.json())
-    .catch(err => errMsg && Dialog.error(errMsg));
+  return await fetch(url).then(res => res.json());
 }
 
 export async function loadImage(url) {
-  const img = createElement({ tag: 'img' });
+  const img = createElement('img');
   return new Promise((resolve, reject) => {
     img.onload = () => resolve(img);
     img.src = url;

@@ -63,7 +63,10 @@ export class Datastore {
     const s = this._storage;
     Array.from({ length: s.length }, (_, index) => s.key(index))
       .filter(key => key.startsWith(this._prefix))
-      .forEach(key => this.set(key, s.getItem(key)?.fallback ?? null));
+      .forEach(key => {
+        const { fallback } = JSON.parse(s.getItem(key));
+        this.set(key, isNullish(fallback) ? null : fallback);
+      });
   }
 
   clear() {

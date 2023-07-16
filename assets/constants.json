@@ -4669,6 +4669,20 @@
         "old": false
       }
     ],
+    "internetyamero": [
+      {
+        "constant": 4.5,
+        "old": false
+      },
+      {
+        "constant": 7.5,
+        "old": false
+      },
+      {
+        "constant": 9.9,
+        "old": false
+      }
+    ],
     "bulletwaiting": [
       {
         "constant": 2.5,

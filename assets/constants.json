@@ -4668,6 +4668,76 @@
         "constant": 10.5,
         "old": false
       }
+    ],
+    "bulletwaiting": [
+      {
+        "constant": 2.5,
+        "old": false
+      },
+      {
+        "constant": 4.5,
+        "old": false
+      },
+      {
+        "constant": 8.1,
+        "old": false
+      }
+    ],
+    "devillicsphere": [
+      {
+        "constant": 4.0,
+        "old": false
+      },
+      {
+        "constant": 7.5,
+        "old": false
+      },
+      {
+        "constant": 9.9,
+        "old": false
+      }
+    ],
+    "lucidtraveler": [
+      {
+        "constant": 4.5,
+        "old": false
+      },
+      {
+        "constant": 8.3,
+        "old": false
+      },
+      {
+        "constant": 10.4,
+        "old": false
+      }
+    ],
+    "chaos": [
+      {
+        "constant": 5.5,
+        "old": false
+      },
+      {
+        "constant": 7.5,
+        "old": false
+      },
+      {
+        "constant": 10.9,
+        "old": false
+      }
+    ],
+    "usedtobe": [
+      {
+        "constant": 4.0,
+        "old": false
+      },
+      {
+        "constant": 6.5,
+        "old": false
+      },
+      {
+        "constant": 9.2,
+        "old": false
+      }
     ]
   }
 }

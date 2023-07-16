@@ -323,6 +323,21 @@
       }
     },
     {
+      "id": "cytusii",
+      "custom_banner": true,
+      "plus_character": 69,
+      "name_localized": {
+        "en": "CYTUS II"
+      },
+      "description_localized": {
+        "en": "Get up. You have someone to awaken.\n\nThe worlds of Cytus II and Arcaea finally meet.\n4 famous songs from Cytus II, and 1 brand new\noriginal arrive in this much awaited collaboration.\n\nLet Ilith and Ivy join you as you bring CHAOS in.",
+        "ja": "\"――さあ、立って。\n成すべきことがまだあるでしょう？\"\n\nArcaea × Cytus II、ついに邂逅する2つの世界。\nCytus IIから名曲4つと、描き下ろし楽曲1つが収録。\n\nIlithとIvyと共に、渦巻く混沌に切り込もう！",
+        "ko": "일어나세요. 잠에서 깨워야 할 사람이 있으니까요.\n\nCytus II와 Arcaea의 세계가 마침내 조우합니다.\n모두가 애타게 기다리던 콜라보레이션!\nCytus II의 인기곡 4개와 더불어\n완전히 새로운 오리지널 악곡 1개가 찾아옵니다.\nIlith, Ivy와 함께 CHAOS를 일으키세요!",
+        "zh-Hant": "動身吧，去喚醒那沈睡之人。\n\n名為Arcaea的世界終於與名為Cytus II的世界相遇。\n四首經典曲目及一首不曾出現於兩個遊戲中的\n全新原創曲目終於到來。\n\n讓Ilith和Ivy加入你的「CHAOS」之中吧。",
+        "zh-Hans": "动身吧，去唤醒那沉睡之人。\n\n名为Arcaea的世界终于与名为Cytus II的世界相遇。\n四首经典曲目及一首不曾出现于两个游戏中的\n全新原创曲目终于到来。\n\n让Ilith和Ivy加入你的「CHAOS」之中吧。"
+      }
+    },
+    {
       "id": "musedash",
       "custom_banner": true,
       "plus_character": 53,

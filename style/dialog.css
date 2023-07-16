@@ -31,7 +31,7 @@
   background: var(--background-color);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  transition: bottom 0.25s, opacity 0.25s;
+  transition: bottom 0.25s, opacity 0.25s, max-width 0.25s, max-height 0.25s;
 }
 
 .dialog_box>* {

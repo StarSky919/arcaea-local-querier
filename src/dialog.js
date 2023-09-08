@@ -89,11 +89,13 @@ export class Dialog {
 
   getButton(index) {
     const button = this._buttons.children[index];
+    const close = this.close.bind(this);
     return {
       button,
       enable() { button.classList.remove('disable'); },
       disable() { button.classList.add('disable'); },
-      setText(text) { button.innerText = text; }
+      setText(text) { button.innerText = text; },
+      onClick(func = noop) { bindOnClick(button, async event => await func.call(this, close) !== false && await close()); }
     };
   }
 

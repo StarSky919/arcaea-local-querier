@@ -13,7 +13,6 @@ import {
   throttle,
   sleep,
   bindOnClick,
-  blurAll,
   compile,
   createElement,
   clearChildNodes,
@@ -287,19 +286,30 @@ async function main(SQL) {
 
   function importData(scores, autoRendering = true) {
     if (!scores) return;
+    const noConst = [];
+    const noData = [];
     for (const i of range(scores.length)) {
       const { songId, songDifficulty, clearType, score } = scores[i];
       const scoreDisplay = formatScore(score);
       const rank = getRank(score);
       const clearTypeDisplay = getClearType(clearType);
       const difficultyName = getDifficultyName(songDifficulty);
-      const { constant } = isNullish(consts[songId]) ? { constant: 0 } : consts[songId][songDifficulty];
+      const { constant } = isNullish(consts[songId]) ? { constant: -1 } : consts[songId][songDifficulty];
+      if (constant < 0) {
+        noData.push(`${songId} (${difficultyName})`);
+      } else if (constant === 0) {
+        const { title_localized, difficulties } = songs.find(({ id }) => id === songId);
+        const title = getTitle(difficulties[songDifficulty].title_localized || title_localized);
+        noConst.push(`${title} (${difficultyName})`);
+      }
       const rating = getRating(constant, score);
       const ratingDisplay = rounding(rating, 4);
       Object.assign(scores[i], { scoreDisplay, rank, clearTypeDisplay, difficultyName, constant, rating, ratingDisplay });
     }
     window.scores = scores.sort((a, b) => b.rating - a.rating);
     window.scores.forEach((record, index) => record.ranking = index + 1);
+    if (!isEmpty(noData)) Dialog.show(`无法识别以下记录，若其中包含非愚人节曲目，请截图进行反馈：\n${noData.join('\n')}`, '提示');
+    if (!isEmpty(noConst)) Dialog.show(`以下谱面暂无定数数据，将以0来进行计算：\n${noConst.join('\n')}`, '提示');
     if (autoRendering) renderRecords();
   }
 

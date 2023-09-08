@@ -234,7 +234,8 @@ export function createElement(tag, props = {}, children = []) {
       for (const prop of Object.keys(value)) el[key][prop] = value[prop];
       break;
     default:
-      el[key] = value;
+      if (key in el) el[key] = value;
+      else el.setAttribute(key, value);
   }
   for (const child of children) el.appendChild(child);
   return el;
@@ -242,20 +243,6 @@ export function createElement(tag, props = {}, children = []) {
 
 export function clearChildNodes(node) {
   for (let i = node.childNodes.length; i--;) node.removeChild(node.childNodes[i]);
-}
-
-export function blurAll() {
-  const temp = createElement('input', {
-    style: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      opacity: 0
-    }
-  });
-  document.body.appendChild(temp);
-  temp.focus();
-  document.body.removeChild(temp);
 }
 
 export function compile(node, data) {

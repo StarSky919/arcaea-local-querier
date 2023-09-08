@@ -16,7 +16,8 @@ import {
   compile,
   createElement,
   clearChildNodes,
-  loadJSON
+  loadJSON,
+  downloadFile
 } from '/src/utils.js';
 import { generate } from '/src/generator.js';
 import Datastore from '/src/datastore.js';
@@ -370,11 +371,11 @@ async function main(SQL) {
         if (isEmpty(name)) alqSettings.remove('nickname');
         else alqSettings.set('nickname', name);
         await generate(name || void 0, songs, window.scores)
-          .then(dataURL => {
+          .then(blob => {
             new Dialog({ cancellable: false })
               .title('生成图片')
               .content('成功！点击“下载”按钮即可保存。')
-              .button('下载', () => createElement('a', { download: 'image.png', href: dataURL }).click()).show();
+              .button('下载', () => downloadFile(`${Date.now()}.png`, blob)).show();
           })
           .catch(err => {
             Dialog.error(`图片生成失败！\n请将以下错误信息截图并及时反馈。\n\n错误信息：\n${err.stack}`);

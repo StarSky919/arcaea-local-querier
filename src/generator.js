@@ -169,5 +169,5 @@ export async function generate(name = 'Unknown', songs, records = []) {
   ctx.fillStyle = backgroundColor;
   ctx.fillText(`Arcaea Local Querier v${VERSION.join('.')}    https://alq.starsky919.xyz/`, realWidth / 2, realHeight - padding / 2);
 
-  return cav.toDataURL();
+  return await new Promise(resolve => cav.toBlob(resolve));
 }

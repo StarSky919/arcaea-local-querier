@@ -276,3 +276,12 @@ export async function loadImage(url) {
     img.src = url;
   });
 }
+
+export function downloadFile(name, blob) {
+  const url = URL.createObjectURL(blob);
+  const link = createElement('a', { download: name, href: url });
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  sleep(Time.second * 0.5).then(() => URL.revokeObjectURL(url));
+}

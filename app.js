@@ -474,15 +474,14 @@ async function main(SQL) {
     const packParentName = pack.pack_parent ? packs.find(({ id }) => id === pack.pack_parent).name_localized.en + ' - ' : '';
     content.push(`曲包：${packParentName}${packName}`);
     content.push(`版本：${version} 时间：${new Date(date * 1e3).toLocaleDateString()}`);
-    content.push('');
     for (const { ratingClass, chartDesigner, jacketDesigner, title_localized, artist, bpm, date, version } of difficulties) {
       content.push('');
+      content.push(`${getDifficultyName(ratingClass)} ${consts[songid][ratingClass].constant}`);
       if (title_localized) {
         if (title_localized.ja) content.push(title_localized.ja);
         if (title_localized.en) content.push(title_localized.en);
         if (title_localized['zh-Hans']) content.push(title_localized['zh-Hans']);
       }
-      content.push(`${getDifficultyName(ratingClass)} ${consts[songid][ratingClass].constant}`);
       if (artist) content.push(`曲师：${artist}`);
       if (jacketDesigner) content.push(`曲绘：${jacketDesigner}`);
       if (chartDesigner) content.push(`谱师：${chartDesigner}`);

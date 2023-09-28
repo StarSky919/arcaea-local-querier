@@ -51,7 +51,7 @@
     <div id="record_list"></div>
   </main>
   <div id="loading_mask">
-    <p class="loading lg"></p>
+    <p class="loading md"></p>
     <p>正在加载中……</p>
   </div>
   <input type="file" id="dbFile" style="display: none;" />
@@ -78,10 +78,9 @@
   </template>
   <script>
     try {
-      fetch;
-      eval('async function test() {}');
-      WebAssembly;
-      IntersectionObserver;
+      async (a = 0) => await a;
+      const { a: [a] } = { a: [0] };
+      Reflect && WebAssembly && IntersectionObserver;
     } catch (err) {
       document.querySelector('.warning.hidden').classList.remove('hidden');
     }

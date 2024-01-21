@@ -158,7 +158,7 @@ export async function generate(name = 'Unknown', songs, records = []) {
     ctx.fillText(difficultyName, left, reverseY, boxWidth);
 
     ctx.fillStyle = fontColor;
-    ctx.fillText(`${constant} > ${ratingDisplay}`, left + ctx.measureText(difficultyName).width + ctx.measureText(' ').width, reverseY, boxWidth);
+    ctx.fillText(`${constant.toFixed(1)} > ${ratingDisplay}`, left + ctx.measureText(difficultyName).width + ctx.measureText(' ').width, reverseY, boxWidth);
 
     ctx.textAlign = 'right';
     ctx.fillText(`${getClearType(clearType)}`, right, reverseY, boxWidth);

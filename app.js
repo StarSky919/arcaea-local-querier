@@ -323,7 +323,11 @@ async function main(SQL) {
       while (stmt1.step()) scores.push(stmt1.getAsObject());
       const stmt2 = db.prepare('select * from cleartypes');
       while (stmt2.step()) clearTypes.push(stmt2.getAsObject());
-      scores.forEach(score => score.clearType = clearTypes.find(({ id }) => id === score.id).clearType);
+      scores.forEach(score => {
+        const temp = clearTypes.find(({ id }) => id === score.id) ||
+          clearTypes.find(({ songId, songDifficulty }) => songId === score.songId && songDifficulty === score.songDifficulty);
+        score.clearType = temp.clearType;
+      });
       return scores;
     } catch (err) {
       Dialog.error('请选择正确的文件！');

@@ -84,7 +84,12 @@ async function main(SQL) {
   const { songs } = await loadJSON('/assets/songlist.json', '歌曲数据加载失败，请尝试刷新网页！');
   const { consts } = await loadJSON('/assets/constants.json', '定数表加载失败，请尝试刷新网页！');
 
-  songs.forEach(s => s.difficulties.forEach(d => s.difficulties[d.ratingClass] = d));
+  songs.forEach(s => s.difficulties.forEach(d => {
+    s.difficulties[d.ratingClass] = d;
+    if (d.ratingClass === 4 && s.difficulties[3] === d) {
+      s.difficulties[3] = null;
+    }
+  }));
 
   function getTitle({ en, ja }) {
     return ja || en;
@@ -480,7 +485,7 @@ async function main(SQL) {
     const packParentName = pack.pack_parent ? packs.find(({ id }) => id === pack.pack_parent).name_localized.en + ' - ' : '';
     content.push(`曲包：${packParentName}${packName}`);
     content.push(`版本：${version} 时间：${new Date(date * 1e3).toLocaleDateString()}`);
-    for (const { ratingClass, chartDesigner, jacketDesigner, title_localized, artist, bpm, date, version } of difficulties) {
+    for (const { ratingClass, chartDesigner, jacketDesigner, title_localized, artist, bpm, date, version } of difficulties.filter(Boolean)) {
       content.push('');
       content.push(`${getDifficultyName(ratingClass)} ${consts[songid][ratingClass].constant}`);
       if (title_localized) {

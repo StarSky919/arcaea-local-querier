@@ -11,7 +11,7 @@ import {
 import Dialog from '/src/dialog.js';
 
 function getDifficultyName(difficulty) {
-  return ['PST', 'PRS', 'FTR', 'BYD'][difficulty];
+  return ['PST', 'PRS', 'FTR', 'BYD', 'ETR'][difficulty];
 }
 
 function getClearType(clearType) {
@@ -152,7 +152,7 @@ export async function generate(name = 'Unknown', songs, records = []) {
     ctx.fillText(`${rank}`, right, reverseY, boxWidth);
 
     reverseY -= boxPadding * 1.2;
-    ctx.fillStyle = ['#3366FF', '#33FF33', '#9966FF', '#FF6666'][songDifficulty];
+    ctx.fillStyle = ['#3366FF', '#33FF33', '#9966FF', '#FF6666', '#8877AA'][songDifficulty];
     ctx.textAlign = 'left';
     const difficultyName = getDifficultyName(songDifficulty);
     ctx.fillText(difficultyName, left, reverseY, boxWidth);

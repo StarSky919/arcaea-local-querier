@@ -84,6 +84,8 @@ async function main(SQL) {
   const { songs } = await loadJSON('/assets/songlist.json', '歌曲数据加载失败，请尝试刷新网页！');
   const { consts } = await loadJSON('/assets/constants.json', '定数表加载失败，请尝试刷新网页！');
 
+  songs.forEach(s => s.difficulties.forEach(d => s.difficulties[d.ratingClass] = d));
+
   function getTitle({ en, ja }) {
     return ja || en;
   }
@@ -131,7 +133,7 @@ async function main(SQL) {
   }
 
   function getDifficultyName(difficulty) {
-    return ['Past', 'Present', 'Future', 'Beyond'][difficulty];
+    return ['Past', 'Present', 'Future', 'Beyond', 'Eternal'][difficulty];
   }
 
   function getRating(constant, score) {
@@ -398,9 +400,9 @@ async function main(SQL) {
   });
 
   bindOnClick('difficulty_filter', event => {
-    new ItemSelectorDialog({ settingName: 'difficulty_filter', multiple: true, defaultValue: [0, 1, 2, 3] })
+    new ItemSelectorDialog({ settingName: 'difficulty_filter', multiple: true, defaultValue: [0, 1, 2, 3, 4] })
       .title('筛选难度')
-      .setItem([{ id: 0, text: 'Past' }, { id: 1, text: 'Present' }, { id: 2, text: 'Future' }, { id: 3, text: 'Beyond' }])
+      .setItem([{ id: 0, text: 'Past' }, { id: 1, text: 'Present' }, { id: 2, text: 'Future' }, { id: 3, text: 'Beyond' }, { id: 4, text: 'Eternal' }])
       .onConfirm(() => renderRecords())
       .show();
   });

@@ -316,7 +316,7 @@ async function main(SQL) {
     }
     window.scores = scores.sort((a, b) => b.rating - a.rating);
     window.scores.forEach((record, index) => record.ranking = index + 1);
-    if (!isEmpty(noData)) Dialog.show(`无法识别以下记录，若其中包含非愚人节曲目，请截图进行反馈：\n${noData.join('\n')}`, '提示');
+    if (!isEmpty(noData)) Dialog.show(`无法识别以下记录，若其中包含非愚人节谱面，请截图进行反馈：\n${noData.join('\n')}`, '提示');
     if (!isEmpty(noConst)) Dialog.show(`以下谱面暂无定数数据，将以0来进行计算：\n${noConst.join('\n')}`, '提示');
     if (autoRendering) renderRecords();
   }

@@ -45,7 +45,7 @@ export async function generate(name = 'Unknown', songs, records = []) {
 
   ctx.clearRect(0, 0, cav.width, cav.height);
 
-  const img = await loadImage(`/assets/images/backgrounds/${ Random.integer(1, 8)() }.jpg`);
+  const img = await loadImage(`/assets/images/backgrounds/${ Random.integer(0, 10)() }.jpg`);
   ctx.drawImage(img, 578.125, 0, 843.75, 1500, 0, 0, realWidth, realHeight);
 
   const imageData = ctx.getImageData(0, 0, cav.width, cav.height);

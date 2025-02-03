@@ -97,7 +97,7 @@
   .dialog_box {
     margin: 0 auto;
     bottom: 1rem;
-    max-width: 576px;
+    max-width: 384px;
     max-height: calc(100vh - 2rem);
   }
 }

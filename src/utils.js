@@ -1,4 +1,4 @@
-Promise.stop = value => new Promise(() => { Promise.resolve(value) });
+Promise.stop = () => new Promise(() => {});
 
 export const $ = id => document.getElementById(id);
 export function $$(selector) {
@@ -167,10 +167,12 @@ export function* enumerate(iterable) {
 export function staggeredMerge(target, offset, ...sources) {
   const result = [];
   result.push(...target.splice(0, offset));
-  const maxCount = Math.max(target.length, ...sources.reduce((p, c) => {
-    p.push(c.length);
-    return p;
-  }, []));
+  let maxCount = target.length;
+  for (const source of sources) {
+    if (source.length > maxCount) {
+      maxCount = source.length;
+    }
+  }
   for (const i of range(maxCount)) {
     for (const arr of [target, ...sources]) {
       result.push(isNullish(arr[i]) ? null : arr[i]);

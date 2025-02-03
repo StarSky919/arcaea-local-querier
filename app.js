@@ -224,7 +224,6 @@ async function main(SQL) {
           top: node.offsetTop + node.offsetHeight * 0.5 - window.innerHeight / 2,
           behavior: 'smooth'
         });
-
       }
       resultFrag.appendChild(item);
     };
@@ -515,6 +514,8 @@ async function main(SQL) {
     else searchBox.classList.remove('floating');
   });
   observer.observe($('sentinel'));
+
+  Dialog.show('Arcaea本地查分器已停止维护。\n感谢大家一直以来的支持。', '公告', { cancellable: false });
 }
 
 fetch('/lib/sql-wasm.wasm')
